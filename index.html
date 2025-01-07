@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shopping Cart</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      display: flex;
+      justify-content: center;
+      margin-top: 5rem;
+    }
+    .container {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .product-box {
+      border: 4px solid gray;
+      background-color: whitesmoke;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      padding: 8px 20px;
+      width: 380px;
+      border-radius: 3px;
+      height: auto;
+    }
+    .cart-box {
+      border: 4px solid rgb(167, 165, 165);
+      background-color: whitesmoke;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      padding: 8px 20px;
+      width: 300px;
+      border-radius: 3px;
+      height: auto;
+    }
+    h2 {
+      margin-top: 0;
+      margin-bottom: 20px;
+    }
+    .product, .cart-items {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .cart-items {
+      padding: 10px 0;
+      border-bottom: 1px solid #ddd;
+    }
+    .button {
+      background-color: rgb(30, 131, 175);
+      color: white;
+      border: 1px solid black;
+      padding: 3px 5px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .button button {
+      background-color: rgb(30, 131, 175);
+      color: white;
+      border: none;
+      font-size: 1rem;
+      font-weight: 500;
+      width: 2rem;
+    }
+    .button span {
+      margin: 5px;
+    }
+    button:disabled {
+      cursor: not-allowed;
+    }
+    .items {
+      height: 24vh;
+      margin-bottom: 5px;
+    }
+    .total {
+      width: 100%;
+      margin-top: 25px;
+      margin-bottom: 5px;
+      font-size: 18px;
+      background-color: #979595;
+      border: 1px solid gray;
+      color: white;
+      padding: 5px 2px;
+      border-radius: 2px;
+    }
+    .total span {
+      margin-left: 9.5rem;
+      font-weight: bold;
+    }
+    @media (max-width: 768px) {
+      body {
+        margin-top: 1.5rem;
+      }
+      .product-box, .cart-box {
+        height: auto;
+      }
+      .total span {
+        margin-left: 9.5rem;
+      }
+      .cart-items span {
+        font-size: 0.9rem;
+      }
+      .button {
+        flex-direction: row;
+      }
+      .button span {
+        margin: 2px;
+      }
+      .product span {
+        font-size: 0.9rem;
+      }
+    }
+    @media (max-width: 468px) {
+      body {
+        margin-top: 2rem;
+      }
+      .container {
+        width: 90%;
+        flex-direction: column;
+        align-items: center;
+      }
+      .product-box, .cart-box {
+        width: 100%;
+        height: auto;
+      }
+      .total span {
+        margin-left: 12.5rem;
+      }
+      .cart-items span {
+        font-size: 0.9rem;
+      }
+      .button {
+        flex-direction: row;
+      }
+      .button span {
+        margin: 2px;
+      }
+      .product {
+        flex-wrap: wrap;
+      }
+      .product span {
+        font-size: 0.9rem;
+      }
+    }
+    @media (max-width: 380px) {
+      .total span {
+        margin-left: 10.5rem;
+        margin-right: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="product-box">
+      <h2>Products</h2>
+      <div id="products"></div>
+    </div>
+    <div class="cart-box">
+      <h2>Cart</h2>
+      <div id="cart">
+        <p>No Product added to the cart</p>
+      </div>
+      <div class="items"></div>
+      <div class="total">
+        <strong>Total:</strong><span id="total-amt">0</span>
+      </div>
+    </div>
+  </div>
+  <script>
+    const Products = [
+      { id: 1, name: 'Product-1', price: 100 },
+      { id: 2, name: 'Product-2', price: 200 },
+      { id: 3, name: 'Product-3', price: 300 },
+    ];
+
+    let cart = {};
+
+    const renderCart = () => {
+      const cartContainer = document.querySelector("#cart");
+      const itemsContainer = document.querySelector('.items');
+      const totalAmt = document.getElementById('total-amt');
+
+      itemsContainer.innerHTML = '';
+      let total = 0;
+
+      const cartItems = Object.keys(cart);
+      if (cartItems.length === 0) {
+        cartContainer.innerHTML = '<p>No Product added to the cart</p>';
+        totalAmt.textContent = '0';
+        return;
+      }
+
+      cartContainer.innerHTML = '';
+      cartItems.forEach((id) => {
+        const product = Products.find((p) => p.id === parseInt(id));
+        const quantity = cart[id];
+        const itemTotal = product.price * quantity;
+        total += itemTotal;
+
+        const cartItem = document.createElement('div');
+        cartItem.className = 'cart-items';
+        cartItem.innerHTML = `
+          <span>${product.name}</span>
+          <span>${quantity} x ${product.price} = ${itemTotal}</span>
+        `;
+
+        itemsContainer.appendChild(cartItem);
+      });
+      totalAmt.textContent = total;
+    };
+
+    const renderProducts = () => {
+      const productsContainer = document.getElementById('products');
+
+      Products.forEach((product) => {
+        const productDiv = document.createElement('div');
+        productDiv.id = `product-${product.id}`;
+        productDiv.className = 'product';
+
+        productDiv.innerHTML = `
+          <span>${product.name}</span>
+          <span>${product.price}</span>
+          <div class="button">
+            <button id="decrement-${product.id}" disabled>-</button>
+            <span id="quantity-${product.id}">0</span>
+            <button id="increment-${product.id}">+</button>
+          </div>
+        `;
+
+        productsContainer.appendChild(productDiv);
+
+        const incrementBtn = document.getElementById(`increment-${product.id}`);
+        const decrementBtn = document.getElementById(`decrement-${product.id}`);
+        const quantitySpan = document.getElementById(`quantity-${product.id}`);
+
+        incrementBtn.addEventListener('click', () => {
+          if (!cart[product.id]) cart[product.id] = 0;
+          cart[product.id]++;
+          quantitySpan.textContent = cart[product.id];
+          decrementBtn.disabled = false;
+          renderCart();
+        });
+
+        decrementBtn.addEventListener('click', () => {
+          if (cart[product.id]) {
+            cart[product.id]--;
+            quantitySpan.textContent = cart[product.id];
+            if (cart[product.id] === 0) {
+              delete cart[product.id];
+              decrementBtn.disabled = true;
+            }
+            renderCart();
+          }
+        });
+      });
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderProducts();
+      renderCart();
+    });
+  </script>
+</body>
+</html>
